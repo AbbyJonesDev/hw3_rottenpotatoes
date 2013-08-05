@@ -4,8 +4,9 @@ Given /the following movies exist/ do |movies_table|
   movies_table.hashes.each do |movie|
     # each returned element will be a hash whose key is the table header.
     # you should arrange to add that movie to the database here.
+    Movie.create(movie)
   end
-  flunk "Unimplemented"
+
 end
 
 # Make sure that one string (regexp) occurs before or after another one
@@ -23,6 +24,35 @@ end
 
 When /I (un)?check the following ratings: (.*)/ do |uncheck, rating_list|
   # HINT: use String#split to split up the rating_list, then
+  ratings = []
+  rating_list.split(',').each { |r| ratings << r }
   #   iterate over the ratings and reuse the "When I check..." or
   #   "When I uncheck..." steps in lines 89-95 of web_steps.rb
+  if uncheck
+    ratings.each do |r|
+      id = "ratings_#{r}"
+      uncheck(id)
+    end
+  else
+    ratings.each do |r|
+      id = "ratings_#{r}"
+      check(id)
+    end
+  end
 end
+
+Given /I have selected all ratings/ do
+  ratings = ['G', 'PG', 'PG-13', 'R']
+  ratings.each do |r|
+      id = "ratings_#{r}"
+      check(id)
+    end
+end
+
+
+Then /I should see all movies/ do 
+  rows = page.all('#movies tr').size
+  rows.should == 11
+end
+
+
